@@ -66,6 +66,11 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
+// Auto-update copyright year
+document.querySelectorAll('.current-year').forEach(el => {
+    el.textContent = new Date().getFullYear();
+});
+
 // Animated counter for stats
 const animateCounter = (element, target, duration = 2000) => {
     let start = 0;
@@ -409,8 +414,130 @@ const initNewsFilters = () => {
     });
 };
 
+// --- News Carousel Logic ---
+const initCarousel = () => {
+    const track = document.getElementById('carouselTrack');
+    const indicators = document.getElementById('carouselIndicators');
+    const prevBtn = document.getElementById('carouselPrev');
+    const nextBtn = document.getElementById('carouselNext');
+    
+    if (!track) return;
+    
+    try {
+        if (typeof allNewsData === 'undefined') return;
+        
+        // Get top 5 most recent news
+        const topNews = [...allNewsData]
+            .sort((a, b) => new Date(b.date) - new Date(a.date))
+            .slice(0, 5);
+            
+        if (topNews.length === 0) return;
+        
+        // Generate Slides
+        topNews.forEach((news, index) => {
+            // Slide
+            const slide = document.createElement('a');
+            slide.href = `noticia.html?id=${news.id}`;
+            slide.className = 'carousel-slide';
+            slide.innerHTML = `
+                <img src="${news.coverImage}" alt="${news.title}" loading="lazy">
+                <div class="carousel-content">
+                    <span class="carousel-badge">${news.categoryLabel || news.category}</span>
+                    <h3 class="carousel-title">${news.title}</h3>
+                    <p class="carousel-excerpt">${news.excerpt}</p>
+                </div>
+            `;
+            track.appendChild(slide);
+            
+            // Indicator Dot
+            const dot = document.createElement('button');
+            dot.className = `carousel-dot ${index === 0 ? 'active' : ''}`;
+            dot.setAttribute('aria-label', `Ir para slide ${index + 1}`);
+            dot.addEventListener('click', () => goToSlide(index));
+            if (indicators) indicators.appendChild(dot);
+        });
+        
+        // State and Controls
+        let currentSlide = 0;
+        const totalSlides = topNews.length;
+        let slideInterval;
+        
+        const updateCarousel = () => {
+            track.style.transform = `translateX(-${currentSlide * 100}%)`;
+            
+            // Update dots
+            if (indicators) {
+                const dots = indicators.querySelectorAll('.carousel-dot');
+                dots.forEach((dot, index) => {
+                    dot.classList.toggle('active', index === currentSlide);
+                });
+            }
+        };
+        
+        const nextSlide = () => {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            updateCarousel();
+        };
+        
+        const prevSlide = () => {
+            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+            updateCarousel();
+        };
+        
+        const goToSlide = (index) => {
+            currentSlide = index;
+            updateCarousel();
+            resetInterval();
+        };
+        
+        const startInterval = () => {
+            clearInterval(slideInterval);
+            slideInterval = setInterval(nextSlide, 5000);
+        };
+        
+        const resetInterval = () => {
+            clearInterval(slideInterval);
+            startInterval();
+        };
+        
+        // Event Listeners
+        if (prevBtn) {
+            prevBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                prevSlide();
+                resetInterval();
+            });
+        }
+        
+        if (nextBtn) {
+            nextBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                nextSlide();
+                resetInterval();
+            });
+        }
+        
+        // Pause on hover
+        const container = document.querySelector('.carousel-container');
+        if (container) {
+            container.addEventListener('mouseenter', () => clearInterval(slideInterval));
+            container.addEventListener('mouseleave', startInterval);
+        }
+        
+        // Start auto-play
+        startInterval();
+        
+    } catch (error) {
+        console.error('Erro ao inicializar carrossel:', error);
+    }
+};
+
 // Initialize news loading if on homepage or news page
 if (document.getElementById('news')) {
     loadNews();
     initNewsFilters();
+}
+
+if (document.getElementById('news-carousel')) {
+    initCarousel();
 }
