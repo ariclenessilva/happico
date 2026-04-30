@@ -32,16 +32,16 @@ const sections = document.querySelectorAll('section');
 
 window.addEventListener('scroll', () => {
     let current = '';
-    
+
     sections.forEach(section => {
         const sectionTop = section.offsetTop;
         const sectionHeight = section.clientHeight;
-        
+
         if (window.scrollY >= sectionTop - 100) {
             current = section.getAttribute('id');
         }
     });
-    
+
     navLinks.forEach(link => {
         link.classList.remove('active');
         if (link.getAttribute('href') === `#${current}`) {
@@ -55,7 +55,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
         const target = document.querySelector(this.getAttribute('href'));
-        
+
         if (target) {
             const offsetTop = target.offsetTop - 80;
             window.scrollTo({
@@ -66,6 +66,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
+
 // Auto-update copyright year
 document.querySelectorAll('.current-year').forEach(el => {
     el.textContent = new Date().getFullYear();
@@ -75,7 +76,7 @@ document.querySelectorAll('.current-year').forEach(el => {
 const animateCounter = (element, target, duration = 2000) => {
     let start = 0;
     const increment = target / (duration / 16);
-    
+
     const updateCounter = () => {
         start += increment;
         if (start < target) {
@@ -85,7 +86,7 @@ const animateCounter = (element, target, duration = 2000) => {
             element.textContent = target + '+';
         }
     };
-    
+
     updateCounter();
 };
 
@@ -99,7 +100,7 @@ const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
             entry.target.classList.add('fade-in-up');
-            
+
             // Animate stats when visible
             if (entry.target.classList.contains('stat-number')) {
                 const target = parseInt(entry.target.getAttribute('data-target'));
@@ -124,17 +125,17 @@ const contactForm = document.getElementById('contactForm');
 if (contactForm) {
     contactForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        
+
         // Get form data
         const formData = new FormData(contactForm);
         const data = Object.fromEntries(formData);
-        
+
         // Here you would typically send the data to a server
         console.log('Form submitted:', data);
-        
+
         // Show success message
         showNotification('Mensagem enviada com sucesso! Entraremos em contato em breve.', 'success');
-        
+
         // Reset form
         contactForm.reset();
     });
@@ -158,10 +159,10 @@ const showNotification = (message, type = 'info') => {
         max-width: 350px;
         font-weight: 500;
     `;
-    
+
     notification.textContent = message;
     document.body.appendChild(notification);
-    
+
     // Add slide in animation
     const style = document.createElement('style');
     style.textContent = `
@@ -187,7 +188,7 @@ const showNotification = (message, type = 'info') => {
         }
     `;
     document.head.appendChild(style);
-    
+
     // Remove notification after 5 seconds
     setTimeout(() => {
         notification.style.animation = 'slideOutRight 0.3s ease-out';
@@ -203,12 +204,12 @@ window.addEventListener('mousemove', (e) => {
     const orbs = document.querySelectorAll('.gradient-orb');
     const mouseX = e.clientX / window.innerWidth;
     const mouseY = e.clientY / window.innerHeight;
-    
+
     orbs.forEach((orb, index) => {
         const speed = (index + 1) * 20;
         const x = (mouseX - 0.5) * speed;
         const y = (mouseY - 0.5) * speed;
-        
+
         orb.style.transform = `translate(${x}px, ${y}px)`;
     });
 });
@@ -221,7 +222,7 @@ floatingCards.forEach((card, index) => {
         card.style.transform = 'scale(1.1) translateY(-10px)';
         card.style.transition = 'all 0.3s ease';
     });
-    
+
     card.addEventListener('mouseleave', () => {
         card.style.transform = '';
     });
@@ -232,7 +233,7 @@ const projectCards = document.querySelectorAll('.project-card');
 
 projectCards.forEach(card => {
     const btn = card.querySelector('.project-btn');
-    
+
     if (btn) {
         btn.addEventListener('click', () => {
             const title = card.querySelector('.project-title').textContent;
@@ -255,13 +256,13 @@ const createCursorTrail = () => {
     let lastX = 0;
     let lastY = 0;
     let isMoving = false;
-    
+
     document.addEventListener('mousemove', (e) => {
         if (!isMoving) {
             isMoving = true;
             lastX = e.clientX;
             lastY = e.clientY;
-            
+
             setTimeout(() => {
                 isMoving = false;
             }, 50);
@@ -278,7 +279,7 @@ if (window.innerWidth > 768) {
 const serviceCards = document.querySelectorAll('.service-card');
 
 serviceCards.forEach(card => {
-    card.addEventListener('mouseenter', function() {
+    card.addEventListener('mouseenter', function () {
         this.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
     });
 });
@@ -312,7 +313,7 @@ const createScrollProgress = () => {
         transition: width 0.1s ease;
     `;
     document.body.appendChild(progressBar);
-    
+
     window.addEventListener('scroll', () => {
         const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
         const scrolled = (window.scrollY / windowHeight) * 100;
@@ -354,7 +355,7 @@ const renderNews = (newsArray) => {
     const newsGrid = document.getElementById('newsGrid');
     if (!newsGrid) return;
     newsGrid.innerHTML = '';
-    
+
     if (newsArray.length === 0) {
         newsGrid.innerHTML = '<p class="no-news">Nenhuma notícia encontrada para esta categoria.</p>';
         return;
@@ -364,7 +365,7 @@ const renderNews = (newsArray) => {
         const date = new Date(news.date).toLocaleDateString('pt-PT', {
             year: 'numeric', month: 'long', day: 'numeric'
         });
-        
+
         const card = document.createElement('a');
         card.href = `noticia.html?id=${news.id}`;
         card.className = 'news-card fade-in-up';
@@ -395,13 +396,13 @@ const initNewsFilters = () => {
     if (!newsFilters) return;
 
     const filterBtns = newsFilters.querySelectorAll('.filter-btn');
-    
+
     filterBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             // Update active button
             filterBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            
+
             // Filter news
             const filterValue = btn.getAttribute('data-filter');
             if (filterValue === 'todas') {
@@ -420,19 +421,19 @@ const initCarousel = () => {
     const indicators = document.getElementById('carouselIndicators');
     const prevBtn = document.getElementById('carouselPrev');
     const nextBtn = document.getElementById('carouselNext');
-    
+
     if (!track) return;
-    
+
     try {
         if (typeof allNewsData === 'undefined') return;
-        
+
         // Get top 5 most recent news
         const topNews = [...allNewsData]
             .sort((a, b) => new Date(b.date) - new Date(a.date))
             .slice(0, 5);
-            
+
         if (topNews.length === 0) return;
-        
+
         // Generate Slides
         topNews.forEach((news, index) => {
             // Slide
@@ -448,7 +449,7 @@ const initCarousel = () => {
                 </div>
             `;
             track.appendChild(slide);
-            
+
             // Indicator Dot
             const dot = document.createElement('button');
             dot.className = `carousel-dot ${index === 0 ? 'active' : ''}`;
@@ -456,15 +457,15 @@ const initCarousel = () => {
             dot.addEventListener('click', () => goToSlide(index));
             if (indicators) indicators.appendChild(dot);
         });
-        
+
         // State and Controls
         let currentSlide = 0;
         const totalSlides = topNews.length;
         let slideInterval;
-        
+
         const updateCarousel = () => {
             track.style.transform = `translateX(-${currentSlide * 100}%)`;
-            
+
             // Update dots
             if (indicators) {
                 const dots = indicators.querySelectorAll('.carousel-dot');
@@ -473,33 +474,33 @@ const initCarousel = () => {
                 });
             }
         };
-        
+
         const nextSlide = () => {
             currentSlide = (currentSlide + 1) % totalSlides;
             updateCarousel();
         };
-        
+
         const prevSlide = () => {
             currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
             updateCarousel();
         };
-        
+
         const goToSlide = (index) => {
             currentSlide = index;
             updateCarousel();
             resetInterval();
         };
-        
+
         const startInterval = () => {
             clearInterval(slideInterval);
             slideInterval = setInterval(nextSlide, 5000);
         };
-        
+
         const resetInterval = () => {
             clearInterval(slideInterval);
             startInterval();
         };
-        
+
         // Event Listeners
         if (prevBtn) {
             prevBtn.addEventListener('click', (e) => {
@@ -508,7 +509,7 @@ const initCarousel = () => {
                 resetInterval();
             });
         }
-        
+
         if (nextBtn) {
             nextBtn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -516,17 +517,17 @@ const initCarousel = () => {
                 resetInterval();
             });
         }
-        
+
         // Pause on hover
         const container = document.querySelector('.carousel-container');
         if (container) {
             container.addEventListener('mouseenter', () => clearInterval(slideInterval));
             container.addEventListener('mouseleave', startInterval);
         }
-        
+
         // Start auto-play
         startInterval();
-        
+
     } catch (error) {
         console.error('Erro ao inicializar carrossel:', error);
     }
