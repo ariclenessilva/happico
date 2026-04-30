@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="HAPPi & Co - Notícias">
+    <title>Notícia - HAPPi & Co</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Mermaid.js for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body class="article-page">
+    <!-- Navigation -->
+    <nav class="navbar scrolled" id="navbar">
+        <div class="container nav-container">
+            <div class="logo">
+                <a href="index.html" style="display:flex; align-items:center; text-decoration:none; color:inherit;">
+                    <img src="images/logo.jpeg" alt="HAPPi & Co Logo">
+                    <span class="logo-text">HAPPi & Co</span>
+                </a>
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="index.html#home" class="nav-link">Início</a></li>
+                <li><a href="index.html#services" class="nav-link">Serviços</a></li>
+                <li><a href="index.html#about" class="nav-link">Sobre</a></li>
+                <li><a href="index.html#projects" class="nav-link">Projetos</a></li>
+                <li><a href="index.html#news" class="nav-link active">Notícias</a></li>
+                <li><a href="index.html#contact" class="nav-link">Contato</a></li>
+            </ul>
+            <button class="mobile-toggle" id="mobileToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Article Header -->
+    <header class="article-header" id="articleHeader">
+        <div class="container">
+            <a href="noticias.html" class="back-link">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M15.8333 10H4.16666" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M10 15.8334L4.16666 10L10 4.16669" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Voltar para Notícias
+            </a>
+            <div class="article-meta">
+                <span class="article-category" id="articleCategory">Carregando...</span>
+                <span class="article-date" id="articleDate"></span>
+            </div>
+            <h1 class="article-title" id="articleTitle">A Carregar Notícia...</h1>
+        </div>
+    </header>
+
+    <!-- Cover Image -->
+    <div class="article-cover-container container">
+        <img src="" alt="Capa da Notícia" class="article-cover" id="articleCover" style="display: none;">
+    </div>
+
+    <!-- Article Content -->
+    <main class="article-content container" id="articleContent">
+        <div class="loading-spinner"></div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="logo">
+                        <img src="images/logo.jpeg" alt="HAPPi & Co Logo">
+                        <span class="logo-text">HAPPi & Co</span>
+                    </div>
+                    <p class="footer-description">
+                        Transformando ideias em soluções digitais inovadoras desde 2019.
+                    </p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 HAPPi & Co. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Include news data to bypass local CORS -->
+    <script src="news/newsData.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const articleId = urlParams.get('id');
+
+            if (!articleId) {
+                document.getElementById('articleContent').innerHTML = '<p class="error-msg">Nenhuma notícia especificada.</p>';
+                return;
+            }
+
+            try {
+                // Get news details from global variable
+                if (typeof allNewsData === 'undefined') throw new Error('Dados não encontrados.');
+                const newsList = allNewsData;
+                
+                const article = newsList.find(n => n.id === articleId);
+                
+                if (!article) {
+                    document.getElementById('articleContent').innerHTML = '<p class="error-msg">Notícia não encontrada.</p>';
+                    return;
+                }
+
+                // Update Header Metadata
+                document.title = `${article.title} - HAPPi & Co`;
+                document.getElementById('articleTitle').textContent = article.title;
+                document.getElementById('articleCategory').textContent = article.categoryLabel || article.category;
+                document.getElementById('articleDate').textContent = new Date(article.date).toLocaleDateString('pt-PT', {
+                    year: 'numeric', month: 'long', day: 'numeric'
+                });
+
+                // Update Cover Image
+                const coverImg = document.getElementById('articleCover');
+                coverImg.src = article.coverImage;
+                coverImg.alt = article.title;
+                coverImg.style.display = 'block';
+
+                // Fetch Markdown Content
+                const mdResponse = await fetch(article.file);
+                if (!mdResponse.ok) throw new Error('Falha ao carregar conteúdo da notícia');
+                let markdownContent = await mdResponse.text();
+
+                // Render Markdown
+                const htmlContent = marked.parse(markdownContent);
+                document.getElementById('articleContent').innerHTML = htmlContent;
+
+                // Replace mermaid code blocks with mermaid divs
+                const mermaidBlocks = document.querySelectorAll('code.language-mermaid');
+                mermaidBlocks.forEach(block => {
+                    const pre = block.parentElement;
+                    const div = document.createElement('div');
+                    div.className = 'mermaid';
+                    div.textContent = block.textContent;
+                    pre.replaceWith(div);
+                });
+
+                // Render Mermaid diagrams
+                try {
+                    const mermaidDivs = document.querySelectorAll('.mermaid');
+                    if (mermaidDivs.length > 0) {
+                        await mermaid.run({
+                            nodes: mermaidDivs,
+                        });
+                    }
+                } catch (mermaidError) {
+                    console.error('Erro ao renderizar diagrama mermaid:', mermaidError);
+                }
+
+            } catch (error) {
+                console.error(error);
+                document.getElementById('articleContent').innerHTML = '<p class="error-msg">Ocorreu um erro ao carregar a notícia.</p>';
+            }
+        });
+    </script>
+</body>
+</html>

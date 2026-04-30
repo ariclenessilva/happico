@@ -116,22 +116,24 @@ statNumbers.forEach(stat => observer.observe(stat));
 // Form submission
 const contactForm = document.getElementById('contactForm');
 
-contactForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    
-    // Get form data
-    const formData = new FormData(contactForm);
-    const data = Object.fromEntries(formData);
-    
-    // Here you would typically send the data to a server
-    console.log('Form submitted:', data);
-    
-    // Show success message
-    showNotification('Mensagem enviada com sucesso! Entraremos em contato em breve.', 'success');
-    
-    // Reset form
-    contactForm.reset();
-});
+if (contactForm) {
+    contactForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        // Get form data
+        const formData = new FormData(contactForm);
+        const data = Object.fromEntries(formData);
+        
+        // Here you would typically send the data to a server
+        console.log('Form submitted:', data);
+        
+        // Show success message
+        showNotification('Mensagem enviada com sucesso! Entraremos em contato em breve.', 'success');
+        
+        // Reset form
+        contactForm.reset();
+    });
+}
 
 // Notification system
 const showNotification = (message, type = 'info') => {
@@ -319,3 +321,96 @@ createScrollProgress();
 console.log('%c🚀 HAPPi & Co', 'font-size: 24px; font-weight: bold; color: #8b5cf6;');
 console.log('%cDesenvolvido com ❤️ e tecnologia de ponta', 'font-size: 14px; color: #a78bfa;');
 console.log('%cInteressado em trabalhar conosco? Entre em contato!', 'font-size: 12px; color: #c4b5fd;');
+
+// News Feed and Filtering Logic
+let allNews = [];
+
+// Load news from newsData.js variable
+const loadNews = () => {
+    const newsGrid = document.getElementById('newsGrid');
+    if (!newsGrid) return;
+
+    try {
+        if (typeof allNewsData === 'undefined') {
+            throw new Error('Dados de notícias não encontrados.');
+        }
+        allNews = [...allNewsData];
+        // Sort by date descending
+        allNews.sort((a, b) => new Date(b.date) - new Date(a.date));
+        renderNews(allNews);
+    } catch (error) {
+        console.error('Erro ao carregar notícias:', error);
+        newsGrid.innerHTML = '<p class="error-msg">Não foi possível carregar as notícias no momento.</p>';
+    }
+};
+
+// Render news cards
+const renderNews = (newsArray) => {
+    const newsGrid = document.getElementById('newsGrid');
+    if (!newsGrid) return;
+    newsGrid.innerHTML = '';
+    
+    if (newsArray.length === 0) {
+        newsGrid.innerHTML = '<p class="no-news">Nenhuma notícia encontrada para esta categoria.</p>';
+        return;
+    }
+
+    newsArray.forEach(news => {
+        const date = new Date(news.date).toLocaleDateString('pt-PT', {
+            year: 'numeric', month: 'long', day: 'numeric'
+        });
+        
+        const card = document.createElement('a');
+        card.href = `noticia.html?id=${news.id}`;
+        card.className = 'news-card fade-in-up';
+        card.innerHTML = `
+            <div class="news-image">
+                <img src="${news.coverImage}" alt="${news.title}" loading="lazy">
+                <div class="news-category-badge">${news.categoryLabel || news.category}</div>
+            </div>
+            <div class="news-content">
+                <div class="news-date">${date}</div>
+                <h3 class="news-title">${news.title}</h3>
+                <p class="news-excerpt">${news.excerpt}</p>
+                <div class="news-link">Ler Mais 
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M4.16666 10H15.8333" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M10 4.16669L15.8333 10L10 15.8334" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+            </div>
+        `;
+        newsGrid.appendChild(card);
+    });
+};
+
+// Handle category filtering
+const initNewsFilters = () => {
+    const newsFilters = document.getElementById('newsFilters');
+    if (!newsFilters) return;
+
+    const filterBtns = newsFilters.querySelectorAll('.filter-btn');
+    
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // Update active button
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Filter news
+            const filterValue = btn.getAttribute('data-filter');
+            if (filterValue === 'todas') {
+                renderNews(allNews);
+            } else {
+                const filtered = allNews.filter(n => n.category.toLowerCase() === filterValue.toLowerCase());
+                renderNews(filtered);
+            }
+        });
+    });
+};
+
+// Initialize news loading if on homepage or news page
+if (document.getElementById('news')) {
+    loadNews();
+    initNewsFilters();
+}
