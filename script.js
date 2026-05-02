@@ -73,17 +73,18 @@ document.querySelectorAll('.current-year').forEach(el => {
 });
 
 // Animated counter for stats
-const animateCounter = (element, target, duration = 2000) => {
+const animateCounter = (element, target, duration = 1600) => {
+    const suffix = element.dataset.suffix ?? '+';
     let start = 0;
     const increment = target / (duration / 16);
 
     const updateCounter = () => {
         start += increment;
         if (start < target) {
-            element.textContent = Math.floor(start) + '+';
+            element.textContent = Math.floor(start) + suffix;
             requestAnimationFrame(updateCounter);
         } else {
-            element.textContent = target + '+';
+            element.textContent = target + suffix;
         }
     };
 
@@ -199,35 +200,6 @@ const showNotification = (message, type = 'info') => {
     }, 5000);
 };
 
-// Parallax effect for hero orbs
-window.addEventListener('mousemove', (e) => {
-    const orbs = document.querySelectorAll('.gradient-orb');
-    const mouseX = e.clientX / window.innerWidth;
-    const mouseY = e.clientY / window.innerHeight;
-
-    orbs.forEach((orb, index) => {
-        const speed = (index + 1) * 20;
-        const x = (mouseX - 0.5) * speed;
-        const y = (mouseY - 0.5) * speed;
-
-        orb.style.transform = `translate(${x}px, ${y}px)`;
-    });
-});
-
-// Floating cards animation enhancement
-const floatingCards = document.querySelectorAll('.floating-card');
-
-floatingCards.forEach((card, index) => {
-    card.addEventListener('mouseenter', () => {
-        card.style.transform = 'scale(1.1) translateY(-10px)';
-        card.style.transition = 'all 0.3s ease';
-    });
-
-    card.addEventListener('mouseleave', () => {
-        card.style.transform = '';
-    });
-});
-
 // Project card interactions
 const projectCards = document.querySelectorAll('.project-card');
 
@@ -250,30 +222,6 @@ window.addEventListener('load', () => {
         document.body.style.opacity = '1';
     }, 100);
 });
-
-// Cursor trail effect (optional, for extra wow factor)
-const createCursorTrail = () => {
-    let lastX = 0;
-    let lastY = 0;
-    let isMoving = false;
-
-    document.addEventListener('mousemove', (e) => {
-        if (!isMoving) {
-            isMoving = true;
-            lastX = e.clientX;
-            lastY = e.clientY;
-
-            setTimeout(() => {
-                isMoving = false;
-            }, 50);
-        }
-    });
-};
-
-// Initialize cursor trail on desktop only
-if (window.innerWidth > 768) {
-    createCursorTrail();
-}
 
 // Service card hover effect enhancement
 const serviceCards = document.querySelectorAll('.service-card');
@@ -308,7 +256,7 @@ const createScrollProgress = () => {
         top: 0;
         left: 0;
         height: 3px;
-        background: linear-gradient(90deg, hsl(260, 85%, 60%), hsl(320, 80%, 60%));
+        background: linear-gradient(90deg, #14366b, #c8102e);
         z-index: 10000;
         transition: width 0.1s ease;
     `;
@@ -324,9 +272,9 @@ const createScrollProgress = () => {
 createScrollProgress();
 
 // Console message for developers
-console.log('%c🚀 HAPPi & Co', 'font-size: 24px; font-weight: bold; color: #8b5cf6;');
-console.log('%cDesenvolvido com ❤️ e tecnologia de ponta', 'font-size: 14px; color: #a78bfa;');
-console.log('%cInteressado em trabalhar conosco? Entre em contato!', 'font-size: 12px; color: #c4b5fd;');
+console.log('%cHAPPI & Co.', 'font-size: 22px; font-weight: 700; color: #14366b;');
+console.log('%cConsultoria Estratégica e Inovadora', 'font-size: 13px; color: #c8102e; font-weight: 600;');
+console.log('%cO seu crescimento é o nosso trabalho.', 'font-size: 12px; color: #3b4a63;');
 
 // News Feed and Filtering Logic
 let allNews = [];
